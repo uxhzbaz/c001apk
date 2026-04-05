@@ -49,8 +49,12 @@ jobs:
       - name: Add OHOS platform
         run: flutter create --platforms ohos .
 
+      - name: Set and Extract version
+        shell: pwsh
+        run: lib/scripts/build.ps1
+      
       - name: Build HAP (release)
-        run: flutter build hap --release
+        run: flutter build hap --release  --dart-define-from-file=c001apk_release.json
 
       - name: Package HAP artifact
         run: |
