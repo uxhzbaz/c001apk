@@ -43,7 +43,15 @@ extension FollowTypeExt on FollowType {
 
 // ignore: constant_identifier_names
 enum ImageQuality { AUTO, ORIGIN, THUMBNAIL }
-
+extension ImageQualityExt on ImageQuality {
+  String get displayName {
+    switch (this) {
+      case ImageQuality.AUTO: return '自动';
+      case ImageQuality.ORIGIN: return '原始';
+      case ImageQuality.THUMBNAIL: return '缩略图';
+    }
+  }
+}
 class _SettingsPageState extends State<SettingsPage>
     with AutomaticKeepAliveClientMixin {
   @override
@@ -195,7 +203,7 @@ class _SettingsPageState extends State<SettingsPage>
             ),
           ),
           ListTile(
-            title: const Text('字体比例'),
+            title: const Text('字体大小'),
             subtitle: Text('${GStorage.fontScale.toStringAsFixed(2)}x'),
             leading: const Icon(Icons.text_fields),
             onTap: () => showDialog<void>(
