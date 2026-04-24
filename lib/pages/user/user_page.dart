@@ -57,7 +57,7 @@ class _UserPageState extends State<UserPage> {
           child: Container(
             alignment: Alignment.center,
             padding: const EdgeInsets.all(10.0),
-            child: const Text('EMPTY'),
+            child: const Text('空'),
           ),
         );
       case Error():
@@ -94,7 +94,7 @@ class _UserPageState extends State<UserPage> {
               height: 80,
               alignment: Alignment.center,
               padding: const EdgeInsets.all(10.0),
-              child: const Text('EMPTY'),
+              child: const Text('空'),
             ),
           ),
         );
@@ -207,7 +207,15 @@ class _UserPageState extends State<UserPage> {
       ),
     );
   }
-
+String _getMenuItemText(UserMenuItem item) {
+  switch (item) {
+    case UserMenuItem.Copy: return '复制';
+    case UserMenuItem.Share: return '分享';
+    case UserMenuItem.Report: return '举报';
+    case UserMenuItem.UserInfo: return '用户信息';
+    default: return '';
+  }
+}
   Widget _header() {
     return Positioned(
       left: 0,
@@ -264,7 +272,7 @@ class _UserPageState extends State<UserPage> {
                           if (Utils.isSupportWebview()) {
                             Utils.report(_userController.uid, ReportType.User);
                           } else {
-                            SmartDialog.showToast('not supported');
+                            SmartDialog.showToast('不支持');
                           }
                           break;
                         case UserMenuItem.UserInfo:
@@ -292,17 +300,15 @@ class _UserPageState extends State<UserPage> {
                       }
                     },
                     itemBuilder: (BuildContext context) => UserMenuItem.values
-                        .map((item) => PopupMenuItem<UserMenuItem>(
-                              value: item,
-                              child: item == UserMenuItem.Block
-                                  ? Text(
-                                      _userController.isBlocked
-                                          ? 'UnBlock'
-                                          : 'Block',
-                                    )
-                                  : Text(item.name),
-                            ))
-                        .toList(),
+    .map((item) => PopupMenuItem<UserMenuItem>(
+          value: item,
+          child: Text(
+            item == UserMenuItem.Block
+                ? (_userController.isBlocked ? '取消屏蔽' : '屏蔽')
+                : _getMenuItemText(item),
+          ),
+        ))
+    .toList(),
                   ),
                 ]
               : null,
