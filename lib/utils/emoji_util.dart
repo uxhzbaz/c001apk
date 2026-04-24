@@ -76,7 +76,7 @@ class EmojiUtil {
     '[表面开心]': 'coolapk_emotion_1020.png',
     '[滑稽]': 'coolapk_emotion_62_huaji.png',
     '[流汗滑稽]': 'coolapk_emotion_63_liuhanhuaji.png',
-    '[受虐滑稽]': 'shounuehuaji.svg',
+    '[受虐滑稽]': 'shounuehuaji.webp',
     '[cos滑稽]': 'coolapk_emotion_65_coshuaji.png',
     '[斗鸡眼滑稽]': 'coolapk_emotion_66_doujiyanhuaji.png',
     '[墨镜滑稽]': 'coolapk_emotion_67_mojinghuaji.png',
