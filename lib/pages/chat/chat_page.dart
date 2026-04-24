@@ -60,7 +60,13 @@ class _ChatPageState extends State<ChatPage> {
   late final _enableSend = StreamController<bool>();
   late bool _visibleSend = false;
   late final _imagePicker = ImagePicker();
-
+  String _getChatMenuText(ChatMenuType item) {
+  switch (item) {
+    case ChatMenuType.Check: return '查看主页';
+    case ChatMenuType.Block: return '屏蔽';
+    case ChatMenuType.Report: return '举报';
+  }
+}
   @override
   void initState() {
     super.initState();
@@ -112,20 +118,10 @@ class _ChatPageState extends State<ChatPage> {
       }
     },
     itemBuilder: (context) => ChatMenuType.values
-        .map((item) => PopupMenuItem(
-              value: item,
-              child: Text(_getChatMenuText(item)),
-            ))
+        .map((item) => PopupMenuItem(value: item, child: Text(_getChatMenuText(item))))
         .toList(),
-  ),
+  )
 ],
-              itemBuilder: (context) => ChatMenuType.values
-    .map((item) => PopupMenuItem(
-          value: item,
-          child: Text(_getChatMenuText(item)),
-        ))
-    .toList(),
-        ],
       ),
       body: Column(
         mainAxisAlignment: MainAxisAlignment.center,
@@ -137,13 +133,7 @@ class _ChatPageState extends State<ChatPage> {
       ),
     );
   }
-String _getChatMenuText(ChatMenuType item) {
-  switch (item) {
-    case ChatMenuType.Check: return '查看主页';
-    case ChatMenuType.Block: return '屏蔽';
-    case ChatMenuType.Report: return '举报';
-  }
-}
+
   Widget _buildList() {
     Widget resultWidget = Obx(
       () {
