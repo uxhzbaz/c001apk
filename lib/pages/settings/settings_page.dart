@@ -29,6 +29,18 @@ enum SettingsMenuItem { Feedback, About }
 // ignore: constant_identifier_names
 enum FollowType { ALL, USER, TOPIC, PRODUCT, APP }
 
+extension FollowTypeExt on FollowType {
+  String get displayName {
+    switch (this) {
+      case FollowType.ALL: return '全部';
+      case FollowType.USER: return '用户';
+      case FollowType.TOPIC: return '话题';
+      case FollowType.PRODUCT: return '数码';
+      case FollowType.APP: return '应用';
+    }
+  }
+}
+
 // ignore: constant_identifier_names
 enum ImageQuality { AUTO, ORIGIN, THUMBNAIL }
 
