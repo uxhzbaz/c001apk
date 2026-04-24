@@ -91,11 +91,7 @@ class C001APKAPP extends StatelessWidget {
       return GetMaterialApp(
         title: 'c001apk',
         theme: ThemeData(
-        textTheme: ThemeData.light().textTheme.apply(
-  fontFamily: 'Roboto',
-  fontFamilyFallback: const ['Noto Serif CJK', 'Noto Sans CJK'],
-),
-          colorScheme: selectedTheme == 2 ? darkColorScheme : lightColorScheme,
+          colorScheme: selectedTheme == 2 ? darkColorScheme : lightColorScheme,fontFamily: 'serif',
           useMaterial3: true,
           navigationBarTheme: NavigationBarThemeData(
               surfaceTintColor: (lightDynamic != null && useMaterial)
@@ -133,7 +129,7 @@ class C001APKAPP extends StatelessWidget {
           ),
         ),
         darkTheme: ThemeData(
-          colorScheme: selectedTheme == 1 ? lightColorScheme : darkColorScheme,
+          colorScheme: selectedTheme == 1 ? lightColorScheme : darkColorScheme,fontFamily: 'serif',
           useMaterial3: true,
           navigationBarTheme: NavigationBarThemeData(
               surfaceTintColor: (lightDynamic != null && useMaterial)
