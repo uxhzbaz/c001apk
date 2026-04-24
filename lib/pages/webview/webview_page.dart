@@ -240,14 +240,14 @@ class _WebviewPageState extends State<WebviewPage> {
                 }
                 return AlertDialog(
                   title: Text(
-                    'Download file: $suggestedFilename ?',
+                    '下载文件: $suggestedFilename ?',
                     style: const TextStyle(fontSize: 18),
                   ),
                   content: SelectableText(request.url.toString()),
                   actions: [
                     TextButton(
                         onPressed: () => Get.back(),
-                        child: const Text('Close')),
+                        child: const Text('关闭')),
                     TextButton(
                         onPressed: () async {
                           Get.back();
