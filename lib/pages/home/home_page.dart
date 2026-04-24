@@ -23,26 +23,10 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
   late TabController _tabController;
   final ReturnTopController _pageScrollController =
       Get.find<ReturnTopController>(tag: 'home');
+  // late final _config = Provider.of<AppConfigProvider>(context, listen: false);
+  // late bool _showFab = true; //_config.isLogin;
 
-  // 直接在 getter 中生成中文标签，确保每次 build 时都是最新
-  List<Tab> get _tabList {
-    final Map<TabType, String> tabNames = {
-      TabType.FOLLOW: '关注',
-      TabType.APP: '应用',
-      TabType.FEED: '动态',
-      TabType.HOT: '热门',
-      TabType.TOPIC: '话题',
-      TabType.PRODUCT: '数码',
-      TabType.COOLPIC: '酷图',
-      TabType.NONE: '',
-    };
-    var tabs = TabType.values.map((type) => Tab(text: tabNames[type]!)).toList();
-    tabs.removeLast();
-    if (!Platform.isAndroid) {
-      tabs.removeAt(1);
-    }
-    return tabs;
-  }
+  final _tabList = TabType.values.map((type) => Tab(text: type.name)).toList();
 
   final _pages = [
     const HomeFeedPage(tabType: TabType.FOLLOW),
@@ -65,6 +49,11 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
   @override
   void initState() {
     super.initState();
+
+    _tabList.removeLast();
+    if (!Platform.isAndroid) {
+      _tabList.removeAt(1);
+    }
 
     _tabController = TabController(
       vsync: this,
