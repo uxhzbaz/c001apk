@@ -92,25 +92,33 @@ class _ChatPageState extends State<ChatPage> {
       appBar: AppBar(
         title: Text(_username),
         actions: [
-          PopupMenuButton(
-              onOpened: _focusNode.unfocus,
-              onSelected: (value) {
-                switch (value) {
-                  case ChatMenuType.Check:
-                    Get.toNamed('/u/$_uid');
-                    break;
-                  case ChatMenuType.Block:
-                    GStorage.onBlock(_uid);
-                    break;
-                  case ChatMenuType.Report:
-                    if (Utils.isSupportWebview()) {
-                      Utils.report(_uid, ReportType.User);
-                    } else {
-                      SmartDialog.showToast('不支持');
-                    }
-                    break;
-                }
-              },
+  PopupMenuButton(
+    onOpened: _focusNode.unfocus,
+    onSelected: (value) {
+      switch (value) {
+        case ChatMenuType.Check:
+          Get.toNamed('/u/$_uid');
+          break;
+        case ChatMenuType.Block:
+          GStorage.onBlock(_uid);
+          break;
+        case ChatMenuType.Report:
+          if (Utils.isSupportWebview()) {
+            Utils.report(_uid, ReportType.User);
+          } else {
+            SmartDialog.showToast('不支持');
+          }
+          break;
+      }
+    },
+    itemBuilder: (context) => ChatMenuType.values
+        .map((item) => PopupMenuItem(
+              value: item,
+              child: Text(_getChatMenuText(item)),
+            ))
+        .toList(),
+  ),
+],
               itemBuilder: (context) => ChatMenuType.values
     .map((item) => PopupMenuItem(
           value: item,
