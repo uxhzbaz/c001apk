@@ -77,7 +77,14 @@ class _FeedPageState extends State<FeedPage> with TickerProviderStateMixin {
       _fabAnimationCtr?.reverse();
     }
   }
-
+  String _getFeedMenuItemText(FeedMenuItem item) {
+  switch (item) {
+    case FeedMenuItem.Copy: return '复制';
+    case FeedMenuItem.Share: return '分享';
+    case FeedMenuItem.Report: return '举报';
+    default: return '';
+  }
+}
   @override
   void dispose() {
     _titleStreamC.close();
@@ -116,7 +123,7 @@ class _FeedPageState extends State<FeedPage> with TickerProviderStateMixin {
           child: Container(
             alignment: Alignment.center,
             padding: const EdgeInsets.all(10.0),
-            child: const Text('EMPTY'),
+            child: const Text('空'),
           ),
         );
       case Error():
@@ -337,7 +344,7 @@ class _FeedPageState extends State<FeedPage> with TickerProviderStateMixin {
             height: 80,
             alignment: Alignment.center,
             padding: const EdgeInsets.all(10.0),
-            child: const Text('EMPTY'),
+            child: const Text('空'),
           ),
         );
       case Error():
@@ -432,7 +439,7 @@ class _FeedPageState extends State<FeedPage> with TickerProviderStateMixin {
                 )),
                 child: FloatingActionButton(
                   heroTag: null,
-                  tooltip: 'Reply',
+                  tooltip: '回复',
                   onPressed: () {
                     _onReply(
                       ReplyType.feed,
@@ -517,27 +524,23 @@ class _FeedPageState extends State<FeedPage> with TickerProviderStateMixin {
                             if (Utils.isSupportWebview()) {
                               Utils.report(_id, ReportType.Feed);
                             } else {
-                              SmartDialog.showToast('not supported');
+                              SmartDialog.showToast('不支持');
                             }
                             break;
                         }
                       },
                       itemBuilder: (BuildContext context) => FeedMenuItem.values
-                          .map((item) => PopupMenuItem<FeedMenuItem>(
-                                value: item,
-                                child: item == FeedMenuItem.Fav
-                                    ? Text(
-                                        _feedController.isFav ? 'UnFav' : 'Fav',
-                                      )
-                                    : item == FeedMenuItem.Block
-                                        ? Text(
-                                            _feedController.isBlocked
-                                                ? 'Unblock'
-                                                : 'Block',
-                                          )
-                                        : Text(item.name),
-                              ))
-                          .toList(),
+    .map((item) => PopupMenuItem<FeedMenuItem>(
+          value: item,
+          child: Text(
+            item == FeedMenuItem.Fav
+                ? (_feedController.isFav ? '取消收藏' : '收藏')
+                : item == FeedMenuItem.Block
+                    ? (_feedController.isBlocked ? '解除拉黑' : '拉黑')
+                    : _getFeedMenuItemText(item),
+          ),
+        ))
+    .toList(),
                     )
                   ]
                 : null,
