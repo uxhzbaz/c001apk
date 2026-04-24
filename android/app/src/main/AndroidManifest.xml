@@ -25,7 +25,7 @@
     </queries>
 
     <application
-        android:label="c001apk-flutter"
+        android:label="c001apk"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher"
         android:roundIcon="@mipmap/ic_launcher_round"
