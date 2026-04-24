@@ -106,15 +106,17 @@ class _ChatPageState extends State<ChatPage> {
                     if (Utils.isSupportWebview()) {
                       Utils.report(_uid, ReportType.User);
                     } else {
-                      SmartDialog.showToast('not supported');
+                      SmartDialog.showToast('不支持');
                     }
                     break;
                 }
               },
               itemBuilder: (context) => ChatMenuType.values
-                  .map((item) =>
-                      PopupMenuItem(value: item, child: Text(item.name)))
-                  .toList())
+    .map((item) => PopupMenuItem(
+          value: item,
+          child: Text(_getChatMenuText(item)),
+        ))
+    .toList(),
         ],
       ),
       body: Column(
@@ -127,7 +129,13 @@ class _ChatPageState extends State<ChatPage> {
       ),
     );
   }
-
+String _getChatMenuText(ChatMenuType item) {
+  switch (item) {
+    case ChatMenuType.Check: return '查看主页';
+    case ChatMenuType.Block: return '屏蔽';
+    case ChatMenuType.Report: return '举报';
+  }
+}
   Widget _buildList() {
     Widget resultWidget = Obx(
       () {
