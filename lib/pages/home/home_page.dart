@@ -26,18 +26,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
   // late final _config = Provider.of<AppConfigProvider>(context, listen: false);
   // late bool _showFab = true; //_config.isLogin;
 
-  final _tabList = TabType.values.map((type) => Tab(text: _tabText(type))).toList();
-
-String _tabText(TabType t) => {
-  TabType.FOLLOW: '关注',
-  TabType.APP: '应用',
-  TabType.FEED: '动态',
-  TabType.HOT: '热门',
-  TabType.TOPIC: '话题',
-  TabType.PRODUCT: '数码',
-  TabType.COOLPIC: '酷图',
-  TabType.NONE: '',
-}[t]!;
+  late List<Tab> _tabList;
 
   final _pages = [
     const HomeFeedPage(tabType: TabType.FOLLOW),
@@ -60,6 +49,18 @@ String _tabText(TabType t) => {
   @override
   void initState() {
     super.initState();
+
+    final Map<TabType, String> tabNames = {
+      TabType.FOLLOW: '关注',
+      TabType.APP: '应用',
+      TabType.FEED: '动态',
+      TabType.HOT: '热门',
+      TabType.TOPIC: '话题',
+      TabType.PRODUCT: '数码',
+      TabType.COOLPIC: '酷图',
+      TabType.NONE: '',
+    };
+    _tabList = TabType.values.map((type) => Tab(text: tabNames[type]!)).toList();
 
     _tabList.removeLast();
     if (!Platform.isAndroid) {
