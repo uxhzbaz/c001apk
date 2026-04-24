@@ -1,4 +1,4 @@
-name: Build
+name: Build-c001apk-Android
 
 on:
   workflow_dispatch:
