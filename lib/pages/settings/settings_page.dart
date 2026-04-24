@@ -83,7 +83,7 @@ class _SettingsPageState extends State<SettingsPage>
             itemBuilder: (context) => SettingsMenuItem.values
                 .map((item) => PopupMenuItem<SettingsMenuItem>(
                       value: item,
-                      child: Text(item.name),
+                      child: Text(item == SettingsMenuItem.Feedback ? '反馈' : '关于'),
                     ))
                 .toList(),
           )
