@@ -28,7 +28,7 @@ class _SliderDialogState extends State<SliderDialog> {
   @override
   Widget build(BuildContext context) {
     return AlertDialog(
-      title: const Center(child: Text('Font Scale')),
+      title: const Center(child: Text('字体大小')),
       content: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
