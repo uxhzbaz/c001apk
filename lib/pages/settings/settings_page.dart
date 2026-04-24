@@ -203,7 +203,7 @@ class _SettingsPageState extends State<SettingsPage>
             ),
           ),
           ListTile(
-            title: const Text('字体大小'),
+            title: const Text('字体比例'),
             subtitle: Text('${GStorage.fontScale.toStringAsFixed(2)}x'),
             leading: const Icon(Icons.text_fields),
             onTap: () => showDialog<void>(
@@ -224,7 +224,7 @@ class _SettingsPageState extends State<SettingsPage>
             items: FollowType.values
                 .map((type) => DropdownMenuItem<int>(
                       value: FollowType.values.indexOf(type),
-                      child: Text(type.name),
+                      child: Text(type.displayName),
                     ))
                 .toList(),
           ),
