@@ -40,7 +40,7 @@ class _SliderDialogState extends State<SliderDialog> {
             onChanged: (value) => setState(() => _fontScale = value),
           ),
           Text(
-            'Font Size: ${_fontScale.toStringAsFixed(2)}x',
+            '字体大小: ${_fontScale.toStringAsFixed(2)}x',
             style: TextStyle(fontSize: 15 * _fontScale),
           )
         ],
@@ -51,7 +51,7 @@ class _SliderDialogState extends State<SliderDialog> {
             widget.setData(1.00);
             Get.back();
           },
-          child: const Text('Reset'),
+          child: const Text('重置'),
         ),
         TextButton(
           onPressed: () {
@@ -108,7 +108,7 @@ class EditTextDialog extends StatelessWidget {
       actions: [
         TextButton(
           onPressed: () => Get.back(),
-          child: const Text('Cancel'),
+          child: const Text('取消'),
         ),
         TextButton(
           onPressed: () {
@@ -144,7 +144,7 @@ class MAboutDialog extends StatelessWidget {
                   '''
                   <font size="6">${Constants.APP_NAME}</font><br>
                   $version<br><br>
-                  View source code at <b><a href="${Constants.URL_SOURCE_CODE}">GitHub</a></b>
+                  查看源代码 <b><a href="${Constants.URL_SOURCE_CODE}">GitHub</a></b>
                   ''',
                   onTapUrl: (url) {
                     Utils.launchURL(url);
@@ -158,7 +158,7 @@ class MAboutDialog extends StatelessWidget {
       ),
       actions: [
         TextButton(
-          child: const Text('View license'),
+          child: const Text('查看许可证'),
           onPressed: () {
             showLicensePage(
               context: context,
@@ -169,7 +169,7 @@ class MAboutDialog extends StatelessWidget {
           },
         ),
         TextButton(
-          child: const Text('Close'),
+          child: const Text('关闭'),
           onPressed: () => Get.back(),
         ),
       ],
@@ -188,7 +188,7 @@ class ClearDialog extends StatelessWidget {
   Widget build(BuildContext context) {
     return AlertDialog(
       title: const Center(child: Text('清除缓存')),
-      content: Text('当前缓存大小: $cacheSize'),
+      content: Text('当前缓存: $cacheSize'),
       actions: [
         TextButton(
           child: const Text('取消'),
