@@ -227,16 +227,23 @@ class _AppPageState extends State<AppPage> with TickerProviderStateMixin {
                               break;
                           }
                         },
-                        itemBuilder: (context) => AppMenuItem.values.map((item) {
-  String t;
-  switch (item) {
-    case AppMenuItem.Copy: t = '复制'; break;
-    case AppMenuItem.Share: t = '分享'; break;
-    case AppMenuItem.Follow: t = controller.isFollow ? '取消关注' : '关注'; break;
-    case AppMenuItem.Block: t = controller.isBlocked ? '取消屏蔽' : '屏蔽'; break;
-  }
-  return PopupMenuItem(value: item, child: Text(t));
-}).toList(),
+                        itemBuilder: (BuildContext context) =>
+                            AppMenuItem.values
+                                .map((item) => PopupMenuItem<AppMenuItem>(
+                                      value: item,
+                                      child: Text(
+                                        item == AppMenuItem.Block
+                                            ? (controller.isBlocked
+                                                ? '取消拉黑'
+                                                : '拉黑')
+                                            : item == AppMenuItem.Follow
+                                                ? (controller.isFollow
+                                                    ? '取关'
+                                                    : '关注')
+                                                : item.name,
+                                      ),
+                                    ))
+                                .toList(),
                       ),
                     ]
                   : null,
