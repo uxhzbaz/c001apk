@@ -18,7 +18,7 @@ def _keyAlias = System.getenv("KEY_ALIAS") ?: keystoreProperties["keyAlias"]
 def _keyPassword = System.getenv("KEY_PASSWORD") ?: keystoreProperties["keyPassword"]
 
 android {
-    namespace = "com.example.c001apk.flutter"
+    namespace = "com.example.c001apk.flutter1"
     compileSdk = flutter.compileSdkVersion
     ndkVersion = flutter.ndkVersion
 
