@@ -31,10 +31,10 @@ jobs:
       - name: Upload APKs
         uses: actions/upload-artifact@v4
         with:
-          name: apks
+          name: c001apk-Android.txz
           path: build-c001apk-Android.tar.xz
       - name: Upload debug symbols
         uses: actions/upload-artifact@v4
         with:
-          name: debug_info
+          name: build-c001apk-Android-debug_info.txz
           path: debug_info.tar.xz
