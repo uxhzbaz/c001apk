@@ -1,10 +1,13 @@
-import 'dart:io';
+import 'dart:async';
+
 import 'package:flutter/material.dart';
+import 'package:flutter_inappwebview/flutter_inappwebview.dart';
 import 'package:flutter_smart_dialog/flutter_smart_dialog.dart';
 import 'package:get/get.dart';
-import 'package:webview_flutter/webview_flutter.dart';
 
 import '../../constants/constants.dart';
+import '../../utils/extensions.dart';
+import '../../utils/global_data.dart';
 import '../../utils/storage_util.dart';
 import '../../utils/utils.dart';
 
@@ -16,59 +19,20 @@ class LoginPage extends StatefulWidget {
 }
 
 class _LoginPageState extends State<LoginPage> {
-  late final WebViewController _controller;
+  late final InAppWebViewController _webViewController;
+  final _progressStream = StreamController<double>();
 
   @override
   void initState() {
     super.initState();
-    if (Platform.isAndroid) {
-      WebView.platform = AndroidWebView();
-    }
+    // 可选：清空旧 Cookie
+    CookieManager().deleteAllCookies();
+  }
 
-    _controller = WebViewController()
-      ..setJavaScriptMode(JavaScriptMode.unrestricted)
-      ..setNavigationDelegate(
-        NavigationDelegate(
-          onPageFinished: (String url) async {
-            final cookies = await _getCookies();
-            final uid = _extractCookie(cookies, 'uid');
-            final token = _extractCookie(cookies, 'token');
-            final username = _extractCookie(cookies, 'username');
-            if (uid != null && token != null && username != null) {
-              GStorage.setUid(uid);
-              GStorage.setUsername(username);
-              GStorage.setToken(token);
-              GStorage.setIsLogin(true);
-              SmartDialog.showToast('登录成功');
-              Get.back(result: true);
-            }
-          },
-          onUrlChange: (UrlChange change) async {
-            final url = change.url ?? '';
-            if (url.contains('account.coolapk.com/auth/loginByCoolApk') ||
-                url.contains('www.coolapk.com')) {
-            }
-          },
-        ),
-      )
-      ..loadRequest(Uri.parse(Constants.URL_LOGIN));
-  }
-  Future<Map<String, String>> _getCookies() async {
-    try {
-      final cookieManager = WebViewCookieManager();
-      final cookies = await cookieManager.getCookies(Constants.URL_LOGIN);
-      final Map<String, String> cookieMap = {};
-      for (var cookie in cookies) {
-        cookieMap[cookie.name] = cookie.value;
-      }
-      return cookieMap;
-    } catch (e) {
-      debugPrint('获取Cookie失败: $e');
-      return {};
-    }
-  }
-  String? _extractCookie(Map<String, String> cookies, String key) {
-    return cookies[key];
+  @override
+  void dispose() {
+    _progressStream.close();
+    super.dispose();
   }
 
   @override
@@ -80,8 +44,86 @@ class _LoginPageState extends State<LoginPage> {
           icon: const Icon(Icons.close),
           onPressed: () => Get.back(),
         ),
+        bottom: PreferredSize(
+          preferredSize: Size.zero,
+          child: StreamBuilder(
+            initialData: 0.0,
+            stream: _progressStream.stream,
+            builder: (_, snapshot) => snapshot.data as double < 1
+                ? LinearProgressIndicator(value: snapshot.data as double)
+                : const SizedBox.shrink(),
+          ),
+        ),
       ),
-      body: WebViewWidget(controller: _controller),
+      body: InAppWebView(
+        initialSettings: InAppWebViewSettings(
+          useHybridComposition: false,
+          mixedContentMode: MixedContentMode.MIXED_CONTENT_ALWAYS_ALLOW,
+          useShouldOverrideUrlLoading: true,
+          clearCache: true,
+          userAgent: GStorage.userAgent,
+          forceDark: ForceDark.AUTO,
+          algorithmicDarkeningAllowed: true,
+        ),
+        initialUrlRequest: URLRequest(
+          url: WebUri.uri(Uri.parse(Constants.URL_LOGIN)),
+          headers: {'X-Requested-With': Constants.APP_ID},
+        ),
+        onWebViewCreated: (controller) {
+          _webViewController = controller;
+        },
+        onProgressChanged: (controller, progress) {
+          _progressStream.add(progress / 100);
+        },
+        shouldOverrideUrlLoading: (controller, navigationAction) async {
+          final url = navigationAction.request.url!.toString();
+          if (url == Constants.URL_COOLAPK) {
+            // 获取 Cookie 中的登录信息
+            final uidCookie = await CookieManager().getCookie(
+              url: WebUri.uri(Uri.parse(Constants.URL_COOLAPK)),
+              name: 'uid',
+            );
+            final usernameCookie = await CookieManager().getCookie(
+              url: WebUri.uri(Uri.parse(Constants.URL_COOLAPK)),
+              name: 'username',
+            );
+            final tokenCookie = await CookieManager().getCookie(
+              url: WebUri.uri(Uri.parse(Constants.URL_COOLAPK)),
+              name: 'token',
+            );
+
+            if (uidCookie != null &&
+                usernameCookie != null &&
+                tokenCookie != null) {
+              GStorage.setUid(uidCookie.value);
+              GStorage.setUsername(usernameCookie.value);
+              GStorage.setToken(tokenCookie.value);
+              GStorage.setIsLogin(true);
+              SmartDialog.showToast('登录成功');
+              Get.back(result: true);
+            } else {
+              SmartDialog.showToast('登录失败, 未获取到凭证');
+              Get.back(result: false);
+            }
+            return NavigationActionPolicy.CANCEL;
+          }
+          if (!url.startsWith('http')) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: const Text('将要打开外部链接,请确认'),
+                showCloseIcon: true,
+                action: SnackBarAction(
+                  label: '打开',
+                  onPressed: () => Utils.launchURL(url),
+                ),
+              ),
+            );
+            return NavigationActionPolicy.CANCEL;
+          }
+
+          return NavigationActionPolicy.ALLOW;
+        },
+      ),
     );
   }
 }
