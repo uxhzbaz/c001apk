@@ -26,16 +26,51 @@ enum SearchType {
   QUESTION,
   VOTE,
 }
-
+extension SearchTypeExt on SearchType {
+  String get displayName {
+    switch (this) {
+      case SearchType.ALL: return '全部';
+      case SearchType.FEED: return '动态';
+      case SearchType.ARTICLE: return '文章';
+      case SearchType.COOLPIC: return '酷图';
+      case SearchType.COMMENT: return '评论';
+      case SearchType.RATING: return '评分';
+      case SearchType.ANSWER: return '回答';
+      case SearchType.QUESTION: return '提问';
+      case SearchType.VOTE: return '投票';
+    }
+  }
+}
 enum SearchSortType { DATELINE, DEFAULT, HOT, REPLY, STRICT }
-
+extension SearchSortTypeExt on SearchSortType {
+  String get displayName {
+    switch (this) {
+      case SearchSortType.DATELINE: return '最新';
+      case SearchSortType.DEFAULT: return '默认';
+      case SearchSortType.HOT: return '热门';
+      case SearchSortType.REPLY: return '回复';
+      case SearchSortType.STRICT: return '严格';
+    }
+  }
+}
 class SearchResultPage extends StatefulWidget {
   const SearchResultPage({super.key});
 
   @override
   State<SearchResultPage> createState() => _SearchResultPageState();
 }
-
+extension SearchContentTypeExt on SearchContentType {
+  String get displayName {
+    switch (this) {
+      case SearchContentType.FEED: return '动态';
+      case SearchContentType.APP: return '应用';
+      case SearchContentType.GAME: return '游戏';
+      case SearchContentType.TOPIC: return '话题';
+      case SearchContentType.PRODUCT: return '数码';
+      case SearchContentType.USER: return '用户';
+    }
+  }
+}
 class _SearchResultPageState extends State<SearchResultPage>
     with TickerProviderStateMixin {
   final String _keyword = Get.parameters['keyword'] ?? '';
@@ -130,7 +165,7 @@ class _SearchResultPageState extends State<SearchResultPage>
                                 children: [
                                   Expanded(
                                     flex: 1,
-                                    child: Text(item.name),
+                                    child: Text(item == SearchMenuType.Type ? '类型' : '排序'),
                                   ),
                                   const Icon(Icons.arrow_right)
                                 ],
@@ -146,10 +181,10 @@ class _SearchResultPageState extends State<SearchResultPage>
                 isScrollable: true,
                 controller: _tabController,
                 tabs: SearchContentType.values
-                    .map((type) => Tab(
-                          text: type.name,
-                        ))
-                    .toList(),
+    .map((type) => Tab(
+          text: type.displayName,
+        ))
+    .toList(),
                 onTap: (index) {
                   if (!_tabController.indexIsChanging) {
                     _pageScrollController.setIndex(index);
@@ -203,12 +238,12 @@ class _SearchResultPageState extends State<SearchResultPage>
       position:
           RelativeRect.fromLTRB(screenSize.width, 0, 0, screenSize.height),
       items: isSearchType
-          ? SearchType.values
-              .map((type) => PopupMenuItem(value: type, child: Text(type.name)))
-              .toList()
-          : SearchSortType.values
-              .map((type) => PopupMenuItem(value: type, child: Text(type.name)))
-              .toList(),
+    ? SearchType.values
+        .map((type) => PopupMenuItem(value: type, child: Text(type.displayName)))
+        .toList()
+    : SearchSortType.values
+        .map((type) => PopupMenuItem(value: type, child: Text(type.displayName)))
+        .toList(),
       elevation: 8.0,
     ).then((value) {
       if (value != null) {
