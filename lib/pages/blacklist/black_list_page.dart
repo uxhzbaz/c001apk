@@ -124,7 +124,7 @@ class _BlackListPageState extends State<BlackListPage> {
                   ),
                 ),
                 icon: const Icon(Icons.clear_all),
-                tooltip: 'Clear All',
+                tooltip: '全部清除',
               ),
             IconButton(
               onPressed: () async {
@@ -158,7 +158,7 @@ class _BlackListPageState extends State<BlackListPage> {
                 }
               },
               icon: const Icon(Icons.file_upload_outlined),
-              tooltip: 'Export',
+              tooltip: '导出',
             ),
             IconButton(
               onPressed: () async {
@@ -182,7 +182,7 @@ class _BlackListPageState extends State<BlackListPage> {
                 _focusNode.requestFocus();
               },
               icon: const Icon(Icons.file_download_outlined),
-              tooltip: 'Import',
+              tooltip: '导入',
             ),
           ],
           bottom: const PreferredSize(
@@ -215,7 +215,7 @@ class _BlackListPageState extends State<BlackListPage> {
                                 Get.toNamed(
                                     '/${_type == BlackListType.user ? 'u' : 't'}/${Uri.encodeComponent(text)}');
                               } catch (e) {
-                                debugPrint('failed to view $text');
+                                debugPrint('无法查看 $text');
                               }
                             }
                           },
@@ -226,7 +226,7 @@ class _BlackListPageState extends State<BlackListPage> {
                 ),
               )
             : const Center(
-                child: Text('EMPTY'),
+                child: Text('空'),
               ),
       ),
     );
