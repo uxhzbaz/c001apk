@@ -234,8 +234,8 @@ class _AppPageState extends State<AppPage> with TickerProviderStateMixin {
                                       child: Text(
                                         item == AppMenuItem.Block
                                             ? (controller.isBlocked
-                                                ? '取消拉黑'
-                                                : '拉黑')
+                                                ? '取消屏蔽'
+                                                : '屏蔽')
                                             : item == AppMenuItem.Follow
                                                 ? (controller.isFollow
                                                     ? '取关'
