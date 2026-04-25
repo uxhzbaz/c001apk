@@ -300,7 +300,7 @@ class _TopicPageState extends State<TopicPage> with TickerProviderStateMixin {
                       PopupMenuItem(
                         value: TopicMenuItem.Block,
                         child: Text(
-                            _topicController.isBlocked ? '取消拉黑' : '拉黑'),
+                            _topicController.isBlocked ? '取消屏蔽' : '屏蔽'),
                       ),
                     ],
                   ),
