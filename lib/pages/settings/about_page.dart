@@ -25,7 +25,7 @@ class AboutPage extends StatelessWidget {
           ListTile(
             leading: const Icon(Icons.all_inclusive),
             title: const Text(Constants.APP_NAME),
-            subtitle: const Text('仅测试'),
+            subtitle: const Text('仅供学习交流, 严禁用于商业用途, 请于24小时内删除'),
             onTap: () {},
           ),
           ListTile(
@@ -36,13 +36,13 @@ class AboutPage extends StatelessWidget {
           ),
           ListTile(
             leading: const Icon(Icons.code),
-            title: const Text('开源代码'),
+            title: const Text('源码'),
             subtitle: const Text(Constants.URL_SOURCE_CODE),
             onTap: () => Utils.launchURL(Constants.URL_SOURCE_CODE),
           ),
           ListTile(
             leading: const Icon(Icons.source_outlined),
-            title: const Text('打开开源证书'),
+            title: const Text('开源证书'),
             onTap: () => showLicensePage(
               context: context,
               applicationName: Constants.APP_NAME,
