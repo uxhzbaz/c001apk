@@ -64,7 +64,7 @@ Widget buildBody(
   switch (commonController.loadingState.value) {
     case Empty():
       return _bodyState(
-        'EMPTY',
+        '空',
         () {
           commonController.isEnd = false;
           commonController.setLoadingState(LoadingState.loading());
