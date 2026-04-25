@@ -60,7 +60,7 @@ class _HistoryPageState extends State<HistoryPage> {
                       ),
                     ),
                     icon: const Icon(Icons.clear_all),
-                    tooltip: 'Clear All',
+                    tooltip: '全部清理',
                   )
                 ]
               : null,
@@ -86,7 +86,7 @@ class _HistoryPageState extends State<HistoryPage> {
                 separatorBuilder: (_, index) => const SizedBox(height: 10),
               )
             : const Center(
-                child: Text('EMPTY'),
+                child: Text('空'),
               ),
       ),
     );
