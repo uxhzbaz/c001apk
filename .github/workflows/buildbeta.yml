@@ -1,0 +1,113 @@
+name: CI
+
+on:
+  repository_dispatch:
+  workflow_dispatch:
+    inputs:
+      ssh:
+        description: 'SSH connection to Actions'
+        required: false
+        default: 'false'
+  watch:
+    types: [ started ]
+  push:
+    branches:
+      - master
+      - main
+    paths-ignore:
+      - '**.md'
+      - '**.txt'
+      - '.github/**'
+      - '.idea/**'
+      - '!.github/workflows/**'
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@main
+        with:
+          submodules: 'recursive'
+          fetch-depth: 0
+
+      - name: Extract source from c001apk-beta.tar.xz
+        run: |
+          mkdir -p c001apk-beta
+          tar -xJf c001apk-beta.tar.xz -C c001apk-beta --strip-components=1
+          ls -la c001apk-beta/
+
+      - name: Set up JDK
+        uses: actions/setup-java@main
+        with:
+          java-version: 17
+          distribution: temurin
+          cache: "gradle"
+
+      - name: Grant execute permission for gradlew
+        run: chmod +x c001apk-beta/gradlew
+
+      - name: Build Release APK
+        run: |
+          cd c001apk-beta
+          ./gradlew :app:assembleRelease -x lint -x test
+
+      - name: Build Debug APK
+        run: |
+          cd c001apk-beta
+          ./gradlew :app:assembleDebug -x lint -x test
+
+      - name: 获取当前时间
+        uses: srfrnk/current-time@master
+        id: current-time
+        with:
+          format: YYYY/MM/DD
+
+      - name: 获取版本号（从 build.gradle）
+        id: version
+        run: |
+          cd c001apk-beta
+          # 提取 versionCode 和 versionName
+          versionCode=$(grep -oP 'versionCode\s+\K\d+' app/build.gradle)
+          versionName=$(grep -oP 'versionName\s+"\K[^"]+' app/build.gradle)
+          echo "versionCode=$versionCode" >> $GITHUB_ENV
+          echo "versionName=$versionName" >> $GITHUB_ENV
+
+      - name: Delete Pre-Release
+        run: |
+          if gh release view beta &>/dev/null; then
+            gh release delete beta -y
+          fi
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Create or update beta tag
+        uses: richardsimko/update-tag@v1
+        with:
+          tag_name: beta
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Publish Pre-Release
+        uses: ncipollo/release-action@v1
+        with:
+          name: "build_android_${{steps.current-time.outputs.formattedTime}}_v${{ env.versionName }}"
+          tag: "beta"
+          body: "beta ${{steps.current-time.outputs.formattedTime}}_v${{ env.versionName }}"
+          prerelease: true
+          artifacts: |
+            c001apk-beta/app/build/outputs/apk/release/*.apk
+            c001apk-beta/app/build/outputs/apk/debug/*.apk
+
+      - name: Delete Workflow Runs
+        uses: Mattraks/delete-workflow-runs@v2
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          repository: ${{ github.repository }}
+          retain_days: 0
+          keep_minimum_runs: 3
