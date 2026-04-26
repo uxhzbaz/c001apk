@@ -28,7 +28,7 @@ jobs:
         run: echo "PROJECT_DIR=$(pwd)/c001apk-Kotlin-Java" >> $GITHUB_ENV
 
       - name: Gradle wrapper validation
-        uses: gradle/actions/wrapper-validation@v3
+        uses: gradle/actions/wrapper-validation@v4
         with:
           gradle-version: wrapper
           build-root-directory: ${{ env.PROJECT_DIR }}
@@ -52,7 +52,7 @@ jobs:
           fi
 
       - name: Cache Gradle Dependencies
-        uses: actions/cache@v4.0.2
+        uses: actions/cache@v4
         with:
           path: |
             ~/.gradle/caches
