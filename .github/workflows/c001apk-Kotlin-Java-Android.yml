@@ -1,9 +1,19 @@
 name: CI
 
 on:
+  repository_dispatch:
   workflow_dispatch:
+    inputs:
+      ssh:
+        description: 'SSH connection to Actions'
+        required: false
+        default: 'false'
+  watch:
+    types: [ started ]
   push:
-    branches: [ main ]
+    branches:
+      - master
+      - main
     paths-ignore:
       - '**.md'
       - '**.txt'
@@ -11,91 +21,93 @@ on:
       - '.idea/**'
       - '!.github/workflows/**'
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   build:
     runs-on: ubuntu-latest
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@main
         with:
+          submodules: 'recursive'
           fetch-depth: 0
 
-      - name: Extract project archive
-        run: tar -xJf c001apk-Kotlin-Java.tar.xz
-
-      - name: Move into project directory
-        run: echo "PROJECT_DIR=$(pwd)/c001apk-Kotlin-Java" >> $GITHUB_ENV
-
-      - name: Gradle wrapper validation
-        uses: gradle/actions/wrapper-validation@v4
-        with:
-          gradle-version: wrapper
-          build-root-directory: ${{ env.PROJECT_DIR }}
-
-      - name: set up JDK 17
-        uses: actions/setup-java@v4
-        with:
-          java-version: '17'
-          distribution: 'adopt'
-          cache: gradle
-
-      - name: Write key
-        if: github.event_name != 'pull_request' && github.ref == 'refs/heads/main'
+      - name: Extract source from c001apk-beta.tar.xz
         run: |
-          if [ ! -z "${{ secrets.SIGN_KEYSTORE_BASE64 }}" ]; then
-            echo "${{ secrets.SIGN_KEYSTORE_BASE64 }}" | base64 --decode > "${{ env.PROJECT_DIR }}/key.jks"
-            echo KEYSTORE_PATH='${{ github.workspace }}/c001apk-Kotlin-Java/key.jks' >> "${{ env.PROJECT_DIR }}/local.properties"
-            echo KEYSTORE_PASSWORD='${{ secrets.KEYSTORE_PASSWORD }}' >> "${{ env.PROJECT_DIR }}/local.properties"
-            echo KEY_ALIAS='${{ secrets.KEY_ALIAS }}' >> "${{ env.PROJECT_DIR }}/local.properties"
-            echo KEY_PASSWORD='${{ secrets.KEY_PASSWORD }}' >> "${{ env.PROJECT_DIR }}/local.properties"
-          fi
+          mkdir -p c001apk-beta
+          tar -xJf c001apk-beta.tar.xz -C c001apk-beta --strip-components=1
+          ls -la c001apk-beta/
 
-      - name: Cache Gradle Dependencies
-        uses: actions/cache@v4
+      - name: Set up JDK
+        uses: actions/setup-java@main
         with:
-          path: |
-            ~/.gradle/caches
-            ~/.gradle/wrapper
-            !~/.gradle/caches/build-cache-*
-          key: gradle-deps-core-${{ hashFiles('c001apk-Kotlin-Java/**/build.gradle.kts', 'c001apk-Kotlin-Java/**/build.gradle', 'c001apk-Kotlin-Java/**/libs.versions.toml') }}
-          restore-keys: |
-            gradle-deps
+          java-version: 17
+          distribution: temurin
+          cache: "gradle"
 
       - name: Grant execute permission for gradlew
-        run: chmod +x ${{ env.PROJECT_DIR }}/gradlew
+        run: chmod +x c001apk-beta/gradlew
 
-      - name: Build release
-        id: buildRelease
-        working-directory: ${{ env.PROJECT_DIR }}
+      - name: Build Release APK
         run: |
-          ./gradlew :app:assembleRelease
-          echo "releaseName=$(ls app/build/outputs/apk/release/*.apk | awk -F '(/|\\.apk)' '{print $6}')" >> $GITHUB_OUTPUT
+          cd c001apk-beta
+          ./gradlew :app:assembleRelease -x lint -x test
 
-      - name: Upload release
-        if: success()
-        uses: actions/upload-artifact@v4
-        with:
-          name: ${{ steps.buildRelease.outputs.releaseName }}
-          path: ${{ env.PROJECT_DIR }}/app/build/outputs/apk/release/*.apk
-
-      - name: Upload mappings
-        if: success()
-        uses: actions/upload-artifact@v4
-        with:
-          name: mappings
-          path: ${{ env.PROJECT_DIR }}/app/build/outputs/mapping/release
-
-      - name: Build debug
-        id: buildDebug
-        working-directory: ${{ env.PROJECT_DIR }}
+      - name: Build Debug APK
         run: |
-          ./gradlew :app:assembleDebug
-          echo "debugName=$(ls app/build/outputs/apk/debug/*.apk | awk -F '(/|\\.apk)' '{print $6}')" >> $GITHUB_OUTPUT
+          cd c001apk-beta
+          ./gradlew :app:assembleDebug -x lint -x test
 
-      - name: Upload debug
-        if: success()
-        uses: actions/upload-artifact@v4
+      - name: 获取当前时间
+        uses: srfrnk/current-time@master
+        id: current-time
         with:
-          name: ${{ steps.buildDebug.outputs.debugName }}
-          path: ${{ env.PROJECT_DIR }}/app/build/outputs/apk/debug/*.apk
+          format: YYYY/MM/DD
+
+      - name: 获取版本号（从 build.gradle）
+        id: version
+        run: |
+          cd c001apk-beta
+          # 提取 versionCode 和 versionName
+          versionCode=$(grep -oP 'versionCode\s+\K\d+' app/build.gradle)
+          versionName=$(grep -oP 'versionName\s+"\K[^"]+' app/build.gradle)
+          echo "versionCode=$versionCode" >> $GITHUB_ENV
+          echo "versionName=$versionName" >> $GITHUB_ENV
+
+      - name: Delete Pre-Release
+        run: |
+          if gh release view beta &>/dev/null; then
+            gh release delete beta -y
+          fi
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Create or update beta tag
+        uses: richardsimko/update-tag@v1
+        with:
+          tag_name: beta
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Publish Pre-Release
+        uses: ncipollo/release-action@v1
+        with:
+          name: "build_android_${{steps.current-time.outputs.formattedTime}}_v${{ env.versionName }}"
+          tag: "beta"
+          body: "beta ${{steps.current-time.outputs.formattedTime}}_v${{ env.versionName }}"
+          prerelease: true
+          artifacts: |
+            c001apk-beta/app/build/outputs/apk/release/*.apk
+            c001apk-beta/app/build/outputs/apk/debug/*.apk
+
+      - name: Delete Workflow Runs
+        uses: Mattraks/delete-workflow-runs@v2
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          repository: ${{ github.repository }}
+          retain_days: 0
+          keep_minimum_runs: 3
