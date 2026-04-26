@@ -22,8 +22,7 @@ jobs:
           fetch-depth: 0
 
       - name: Extract c001apk-Kotlin-Java.tar.xz
-        run: |
-          tar -xvf c001apk-Kotlin-Java.tar.xz
+        run: tar -xvf c001apk-Kotlin-Java.tar.xz
 
       - name: Set working directory
         run: echo "PROJECT_DIR=c001apk-Kotlin-Java" >> $GITHUB_ENV
@@ -67,7 +66,6 @@ jobs:
         working-directory: ${{ env.PROJECT_DIR }}
         run: chmod +x gradlew
 
-      # Build release
       - name: Build release
         id: buildRelease
         working-directory: ${{ env.PROJECT_DIR }}
@@ -75,7 +73,6 @@ jobs:
           ./gradlew :app:assembleRelease
           echo "releaseName=$(ls app/build/outputs/apk/release/*.apk | awk -F '(/|\\.apk)' '{print $6}')" >> $GITHUB_OUTPUT
 
-      # Pack release APKs into tar.xz
       - name: Pack release APKs with xz
         working-directory: ${{ env.PROJECT_DIR }}
         run: |
@@ -102,7 +99,6 @@ jobs:
           name: mappings
           path: "${{ env.PROJECT_DIR }}/app/build/outputs/mapping/release"
 
-      # Build debug
       - name: Build debug
         id: buildDebug
         working-directory: ${{ env.PROJECT_DIR }}
@@ -110,7 +106,6 @@ jobs:
           ./gradlew :app:assembleDebug
           echo "debugName=$(ls app/build/outputs/apk/debug/*.apk | awk -F '(/|\\.apk)' '{print $6}')" >> $GITHUB_OUTPUT
 
-      # Pack debug APKs into tar.xz
       - name: Pack debug APKs with xz
         working-directory: ${{ env.PROJECT_DIR }}
         run: |
@@ -120,10 +115,10 @@ jobs:
       - name: Upload debug APKs (tar.xz)
         uses: actions/upload-artifact@v4
         with:
-          name: debug_apk_xz
+          name: debug_apks_xz
           path: "${{ env.PROJECT_DIR }}/app/build/outputs/apk/debug/debug_apks.tar.xz"
 
-      - name: Upload debug APK (original)
+      - name: Upload debug APKs (original)
         if: success()
         uses: actions/upload-artifact@v4
         with:
